@@ -12,6 +12,7 @@ interface User {
   token?: string;
   verified?: boolean;
   superAdmin?: boolean;
+  _doc: {};
 }
 
 interface MainUser extends User, mongoose.Document {

@@ -5,18 +5,29 @@ import {
   readOrgUsers,
   VerifiedUser,
   VerifiedUserFinally,
+  signinUser,
+  resetPassword,
+  changePassword,
 } from "../controller/userController";
 
 import upload from "../util/multer";
 
 const router = express.Router();
 
-router.route("/create").post(createUser);
+router.route("/create").post(upload, createUser);
+router.route("/signin").post(signinUser);
+
 router.route("/").get(readUsers);
 router.route("/organisation/:id").get(readOrgUsers);
 
 router.route("/:id/token").get(VerifiedUser);
 
+// goto view!
+// router.route("/:id/view").post(VerifiedUserFinally);
+
 router.route("/:id/verify").post(VerifiedUserFinally);
+
+router.route("/:id/:token/changePassword").post(changePassword);
+router.route("/resetPassword").post(resetPassword);
 
 export default router;

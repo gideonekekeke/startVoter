@@ -150,7 +150,7 @@ export const verifiedByAdminFinally = async (
     const mailOptions = {
       from: "AJ Vote ❤❤❤ <newstudentsportal2@gmail.com>",
       to: generateToken?.orgEmail,
-      subject: `${generateToken?.fullName} Account has been Verify`,
+      subject: `${generateToken?.fullName}'s Account has been Verify`,
       html: data,
     };
 
@@ -186,7 +186,7 @@ export const verifiedSignUser = async (findUser: {}) => {
     });
 
     const mailOptions = {
-      from: "Wallet Coin💰 <newstudentsportal2@gmail.com>",
+      from: "AJ Vote ❤❤❤  <newstudentsportal2@gmail.com>",
       to: findUser?.email,
       subject: "Account re-Verification",
       html: data,
@@ -226,7 +226,7 @@ export const resetMyPassword = async (user: {}, myToken: string) => {
     });
 
     const mailOptions = {
-      from: "Wallet Coin💰 <newstudentsportal2@gmail.com>",
+      from: "AJ Vote ❤❤❤  <newstudentsportal2@gmail.com>",
       to: user?.email,
       subject: "Requesting for Password Reset",
       html: data,
@@ -237,5 +237,39 @@ export const resetMyPassword = async (user: {}, myToken: string) => {
     });
   } catch (error) {
     return error;
+  }
+};
+
+export const changePassword = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { password } = req.body;
+
+    const user = await userModel.findById(req.params.id);
+    if (user) {
+      if (user.verified && user.token === req.params.token) {
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(password, salt);
+
+        await userModel.findByIdAndUpdate(
+          user._id,
+          {
+            token: "",
+            password: hashed,
+          },
+          { new: true }
+        );
+      }
+    } else {
+      return res.status(404).json({ message: "operation can't be done" });
+    }
+
+    return res.status(200).json({
+      message: "password changed",
+    });
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
   }
 };

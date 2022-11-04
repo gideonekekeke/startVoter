@@ -12,6 +12,7 @@ import {
   verifiedSignUser,
   verifiedByAdmin,
   verifiedByAdminFinally,
+  resetMyPassword,
 } from "../util/email";
 
 export const createUser = async (
@@ -19,8 +20,8 @@ export const createUser = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { fullName, organisationName, email, password, token } = req.body;
-    const name = organisationName.toLowerCase();
+    const { fullName, organisationName, email, password } = req.body;
+    console.log("Org Name: ", organisationName, fullName);
 
     const findOrg = await organisationModel.findOne({
       organisationName,
@@ -35,7 +36,7 @@ export const createUser = async (
       const val = Math.random() * 1000;
       const realToken = jwt.sign(val, "this is the Word");
 
-      //   const img = await cloudinary.uploader.upload(req.file.path);
+      const img = await cloudinary.uploader.upload(req.file?.path);
 
       const getUser = await userModel.create({
         fullName,
@@ -44,6 +45,7 @@ export const createUser = async (
         orgName: organisationName,
         orgEmail: getOrganisation?.email,
         token: realToken,
+        image: img.secure_url,
       });
 
       getOrganisation?.user!.push(new mongoose.Types.ObjectId(getUser._id));
@@ -55,7 +57,9 @@ export const createUser = async (
 
       return res.end("We are ready");
     } else {
-      return res.json({ message: "You can't register" });
+      return res.json({
+        message: `You can't register because ${organisationName} doesn't exist`,
+      });
     }
   } catch (err) {
     return res.json({ message: err });
@@ -163,7 +167,7 @@ export const VerifiedUserFinally = async (req: Request, res: Response) => {
         });
       }
     } else {
-      return res.json({ message: "You can be accepted" });
+      return res.json({ message: "You can't be accepted" });
     }
 
     res.end();
@@ -177,25 +181,71 @@ export const signinUser = async (req: Request, res: Response) => {
     const { email, voteCode, password } = req.body;
 
     const user = await userModel.findOne({ email });
+    // if (user) {
+    //   const pass = await bcrypt.compare(password, user.password);
+    //   if (pass) {
+    //     if (voteCode === user.voteCode) {
+    //       if (user.verified) {
+    //         const { ...info } = user._doc;
+    //         const tokenData = jwt.sign(
+    //           { id: user._id, fullName: user.fullName, email: user.email },
+    //           "VoterCode"
+    //         );
 
-    if (user) {
+    //         return res.status(200).json({
+    //           message: `welcome back ${user.fullName}`,
+    //           data: { tokenData, info },
+    //         });
+
+    //       } else {
+    //         return res.status(404).json({
+    //           message: "error: user hasn't been verified",
+    //         });
+    //       }
+    //     }
+    //   } else {
+    //     return res.status(404).json({
+    //       message: "error: password not correct",
+    //     });
+    //   }
+    // } else {
+    //   return res.status(404).json({
+    //     message: "error: ",
+    //   });
+    // }
+
+    // const { ...info } = user._doc;
+    // const tokenData = jwt.sign(
+    //   { id: user._id, fullName: user.fullName, email: user.email },
+    //   "VoterCode"
+    // );
+
+    if (user?.verified && user.token === "" && user.voteCode === voteCode) {
       const pass = await bcrypt.compare(password, user.password);
-
       if (pass) {
-        if (voteCode === user.voteCode) {
-        } else {
-          return res.status(404).json({
-            message: "error: voteCode is not correct",
-          });
-        }
+        const getToken = jwt.sign(
+          {
+            email: user.email,
+            _id: user._id,
+            fullName: user.fullName,
+          },
+          "voteApp"
+        );
+
+        const { ...info } = user._doc;
+
+        res.status(200).json({
+          message: `welcome back ${user.fullName}`,
+          data: { getToken, ...info },
+        });
       } else {
         return res.status(404).json({
-          message: "error: password not correct",
+          message: "error: password is incorrect",
         });
       }
     } else {
       return res.status(404).json({
-        message: "error: ",
+        message: "error: no user found",
       });
     }
   } catch (err) {
@@ -203,5 +253,78 @@ export const signinUser = async (req: Request, res: Response) => {
       message: "error: ",
       err,
     });
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { email } = req.body;
+
+    const user = await userModel.findOne({ email });
+    if (user) {
+      if (user?.verified && user?.token === "") {
+        const token = crypto.randomBytes(5).toString("hex");
+        const myToken = jwt.sign({ token }, "ThisIsAVoteApp");
+
+        await userModel.findByIdAndUpdate(
+          user._id,
+          { token: myToken },
+          { new: true }
+        );
+        resetMyPassword(user, myToken)
+          .then((result) => {
+            console.log("message been sent to you: ");
+          })
+          .catch((error) => console.log(error));
+
+        return res.status(200).json({
+          message: "Please check your email to continue",
+        });
+      } else {
+        return res
+          .status(404)
+          .json({ message: "You do not have enough right to do this!" });
+      }
+    } else {
+      return res.status(404).json({ message: "user can't be found" });
+    }
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
+  }
+};
+
+export const changePassword = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { password } = req.body;
+    const user = await userModel.findById(req.params.id);
+    if (user) {
+      if (user.verified && user.token === req.params.token) {
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(password, salt);
+
+        await userModel.findByIdAndUpdate(
+          user._id,
+          {
+            token: "",
+            password: hashed,
+          },
+          { new: true }
+        );
+      }
+    } else {
+      return res.status(404).json({ message: "operation can't be done" });
+    }
+
+    return res.status(200).json({
+      message: "password has been changed",
+    });
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
   }
 };
