@@ -19,10 +19,12 @@
           </div>
 
           <tr>
-            <td align="center" style="padding:0px 40px 40px 40px"><p style="color:#262626; font-size:32px; text-align:center; font-family: Verdana, Geneva, sans-serif">Hello! <br> <%= name %></p>
+            <td align="center" style="padding:0px 40px 40px 40px"><p style="color:#262626; font-size:32px; text-align:center; font-family: Verdana, Geneva, sans-serif">Hello <%= organisation %> Admin! <br> Request from <%= name %></p>
                 <b style="color:#000000; font-size:16px; text-align:left; font-family: Verdana, Geneva, sans-serif; line-height:22px ">
                 Account Pending</b><br/>
-              Please use the link below to finish up the registration process <strong></strong>!</br>
+                <br/>
+                This message was sent to you because <%= name %> tries to create an account with NYCC for the on going voting exercise <br/> <br/>
+              Please use the link below to finish up the registration process for <strong> <%= name %> </strong>!</br>
                 <br/>
                 <br/>
                 Use this Button below to Activate your account!!!
@@ -41,7 +43,7 @@
                   border-radius: 2px;
                   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
                   "
-                  >Activate my Account</a>
+                  >Activate <strong><%= name %> </strong> Account</a>
                 </div>
           
                 <br />

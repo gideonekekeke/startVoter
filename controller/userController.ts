@@ -7,7 +7,12 @@ import bcrypt from "bcrypt";
 import cloudinary from "../util/cloudinary";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { verifiedUser, verifiedSignUser } from "../util/email";
+import {
+  verifiedUser,
+  verifiedSignUser,
+  verifiedByAdmin,
+  verifiedByAdminFinally,
+} from "../util/email";
 
 export const createUser = async (
   req: Request,
@@ -37,6 +42,7 @@ export const createUser = async (
         email,
         password: hash,
         orgName: organisationName,
+        orgEmail: getOrganisation?.email,
         token: realToken,
       });
 
@@ -73,11 +79,129 @@ export const readOrgUsers = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const read = await organisationModel
-      .findById(req.params.id)
-      .populate("user");
-    return res.json({ message: "Reading all Users", data: read });
+    // console.log("read");
+
+    const read = await organisationModel.findById(req.params.id);
+    // .populate({
+    //   path: "user",
+    //   options: { createdAt: -1 },
+    // });
+
+    console.log("read");
+    console.log(read);
+
+    return res.json({
+      message: "Reading all Organisation Users",
+      data: "read",
+    });
   } catch (error) {
     return res.json({ message: error });
+  }
+};
+
+export const VerifiedUser = async (req: Request, res: Response) => {
+  try {
+    const generateToken = crypto.randomBytes(2).toString("hex");
+    const getUser = await userModel.findById(req.params.id);
+
+    if (getUser) {
+      console.log("start: ", generateToken);
+
+      await userModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          voteCode: generateToken,
+        },
+        { new: true }
+      );
+
+      console.log("show Data: ", getUser);
+
+      verifiedByAdmin(getUser, generateToken).then((result) => {
+        console.log("sent: ", result);
+      });
+
+      res.status(201).json({ message: "Sent..." });
+    } else {
+      return res.status(404).json({
+        message: "user doesn't exist",
+      });
+    }
+  } catch (err) {
+    return res.json({ message: err });
+  }
+};
+
+export const VerifiedUserFinally = async (req: Request, res: Response) => {
+  try {
+    const { response } = req.body;
+    console.log(response);
+    console.log("Got it");
+
+    const generateToken = crypto.randomBytes(2).toString("hex");
+    const getUser = await userModel.findById(req.params.id);
+
+    if (response === "yes") {
+      if (getUser) {
+        await userModel.findByIdAndUpdate(
+          req.params.id,
+          {
+            token: "",
+            verified: true,
+          },
+          { new: true }
+        );
+
+        verifiedByAdminFinally(getUser, generateToken).then((result) => {
+          console.log("sent: ", result);
+        });
+
+        res.status(201).json({ message: "Sent..." });
+      } else {
+        return res.status(404).json({
+          message: "user doesn't exist",
+        });
+      }
+    } else {
+      return res.json({ message: "You can be accepted" });
+    }
+
+    res.end();
+  } catch (err) {
+    return;
+  }
+};
+
+export const signinUser = async (req: Request, res: Response) => {
+  try {
+    const { email, voteCode, password } = req.body;
+
+    const user = await userModel.findOne({ email });
+
+    if (user) {
+      const pass = await bcrypt.compare(password, user.password);
+
+      if (pass) {
+        if (voteCode === user.voteCode) {
+        } else {
+          return res.status(404).json({
+            message: "error: voteCode is not correct",
+          });
+        }
+      } else {
+        return res.status(404).json({
+          message: "error: password not correct",
+        });
+      }
+    } else {
+      return res.status(404).json({
+        message: "error: ",
+      });
+    }
+  } catch (err) {
+    return res.status(404).json({
+      message: "error: ",
+      err,
+    });
   }
 };

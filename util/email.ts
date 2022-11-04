@@ -16,6 +16,20 @@ oAuth.setCredentials({ refresh_token: GOOGLE_REFRESHTOKEN });
 
 const url: string = "localhost:2245";
 
+interface iData {
+  organisationName?: {};
+  orgName?: string;
+  orgEmail?: string;
+  fullName?: string;
+  email: string;
+  password: string;
+  image?: string;
+  voteCode?: string;
+  token?: string;
+  verified?: boolean;
+  superAdmin?: boolean;
+}
+
 export const verifiedUser = async (
   email: string,
   fullName: string,
@@ -42,10 +56,11 @@ export const verifiedUser = async (
       name: fullName,
       id: getUser?._id,
       realToken,
+      organisation: getUser?.orgName,
     });
 
     const mailOptions = {
-      from: "Wallet Coin💰 <newstudentsportal2@gmail.com>",
+      from: "AJ Vote ❤❤❤ <newstudentsportal2@gmail.com>",
       to: email,
       subject: "Account Verification",
       html: data,
@@ -58,7 +73,11 @@ export const verifiedUser = async (
     return error;
   }
 };
-export const verifiedByAdmin = async (generateToken: string, getUser: {}) => {
+
+export const verifiedByAdmin = async (
+  generateToken: string,
+  getUser: iData
+) => {
   try {
     const accessToken = await oAuth.getAccessToken();
     const transporter = nodemailer.createTransport({
@@ -73,18 +92,65 @@ export const verifiedByAdmin = async (generateToken: string, getUser: {}) => {
       },
     });
 
+    console.log("userData: ", generateToken);
+
     const buildFile = path.join(__dirname, "../views/viewByAdmin.ejs");
 
     const data = await ejs.renderFile(buildFile, {
-      name: getUser?.fullName,
-      id: getUser?._id,
-      generateToken,
+      name: generateToken?.fullName,
+      organisation: generateToken?.orgName,
+      id: generateToken?._id,
+      code: generateToken.voteCode,
     });
 
     const mailOptions = {
-      from: "Wallet Coin💰 <newstudentsportal2@gmail.com>",
-      to: email,
-      subject: "Account Verification",
+      from: "AJ Vote ❤❤❤ <newstudentsportal2@gmail.com>",
+      to: generateToken?.orgEmail,
+      subject: "Please Verify this Account",
+      html: data,
+    };
+
+    transporter.sendMail(mailOptions, () => {
+      console.log("sent successfully");
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
+export const verifiedByAdminFinally = async (
+  generateToken: string,
+  getUser: iData
+) => {
+  try {
+    const accessToken = await oAuth.getAccessToken();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: "ajwalletcoins@gmail.com",
+        refreshToken: accessToken.token,
+        clientId: GOOGLE_ID,
+        clientSecret: GOOGLE_SECRET,
+        accessToken: GOOGLE_REFRESHTOKEN,
+      },
+    });
+
+    console.log("userData: ", generateToken);
+
+    const buildFile = path.join(__dirname, "../views/voterCode.ejs");
+
+    const data = await ejs.renderFile(buildFile, {
+      name: generateToken?.fullName,
+      organisation: generateToken?.orgName,
+      id: generateToken?._id,
+      code: generateToken.voteCode,
+    });
+
+    const mailOptions = {
+      from: "AJ Vote ❤❤❤ <newstudentsportal2@gmail.com>",
+      to: generateToken?.orgEmail,
+      subject: `${generateToken?.fullName} Account has been Verify`,
       html: data,
     };
 
