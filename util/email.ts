@@ -240,36 +240,46 @@ export const resetMyPassword = async (user: {}, myToken: string) => {
   }
 };
 
-export const changePassword = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
+export const acceptance = async (
+  email: string,
+  positioned: {},
+  fullName: string
+) => {
   try {
-    const { password } = req.body;
+    console.log("position from email: ", positioned?.position);
 
-    const user = await userModel.findById(req.params.id);
-    if (user) {
-      if (user.verified && user.token === req.params.token) {
-        const salt = await bcrypt.genSalt(10);
-        const hashed = await bcrypt.hash(password, salt);
+    const accessToken = await oAuth.getAccessToken();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: "ajwalletcoins@gmail.com",
+        refreshToken: accessToken.token,
+        clientId: GOOGLE_ID,
+        clientSecret: GOOGLE_SECRET,
+        accessToken: GOOGLE_REFRESHTOKEN,
+      },
+    });
 
-        await userModel.findByIdAndUpdate(
-          user._id,
-          {
-            token: "",
-            password: hashed,
-          },
-          { new: true }
-        );
-      }
-    } else {
-      return res.status(404).json({ message: "operation can't be done" });
-    }
+    const buildFile = path.join(__dirname, "../views/Acceptance.ejs");
 
-    return res.status(200).json({
-      message: "password changed",
+    const data = await ejs.renderFile(buildFile, {
+      name: positioned?.fullName,
+      position: positioned?.position,
+      email: email,
+    });
+
+    const mailOptions = {
+      from: "AJ Vote ❤❤❤  <newstudentsportal2@gmail.com>",
+      to: email,
+      subject: `Acceptance for the Position of ${positioned?.position}`,
+      html: data,
+    };
+
+    transporter.sendMail(mailOptions, () => {
+      console.log("sent successfully");
     });
   } catch (error) {
-    return res.status(404).json({ message: error.message });
+    return error;
   }
 };

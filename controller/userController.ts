@@ -55,7 +55,10 @@ export const createUser = async (
         console.log("sent: ", result);
       });
 
-      return res.end("We are ready");
+      return res.json({
+        message:
+          "Account has been created, please check your mail to finish up the Process!",
+      });
     } else {
       return res.json({
         message: `You can't register because ${organisationName} doesn't exist`,
@@ -139,13 +142,11 @@ export const VerifiedUser = async (req: Request, res: Response) => {
 export const VerifiedUserFinally = async (req: Request, res: Response) => {
   try {
     const { response } = req.body;
-    console.log(response);
-    console.log("Got it");
 
     const generateToken = crypto.randomBytes(2).toString("hex");
     const getUser = await userModel.findById(req.params.id);
 
-    if (response === "yes") {
+    if (response === "Yes") {
       if (getUser) {
         await userModel.findByIdAndUpdate(
           req.params.id,
@@ -165,6 +166,16 @@ export const VerifiedUserFinally = async (req: Request, res: Response) => {
         return res.status(404).json({
           message: "user doesn't exist",
         });
+      }
+    }
+
+    if (response === "No") {
+      if (getUser) {
+        await userModel.findByIdAndDelete(req.params.id);
+        // verifiedByAdminFinally(getUser, generateToken).then((result) => {
+        //   console.log("sent: ", result);
+        // });
+        res.status(201).json({ message: "user has been deleted" });
       }
     } else {
       return res.json({ message: "You can't be accepted" });

@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 interface User {
   organisationName?: {};
+  presidentPosition?: {}[];
+  candiadte?: {}[];
   orgName?: string;
   orgEmail?: string;
   fullName?: string;
@@ -44,6 +46,21 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "organisations",
     },
+
+    presidentPosition: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "presidents",
+      },
+    ],
+
+    candiadte: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "presidents",
+      },
+    ],
+
     verified: {
       type: Boolean,
     },

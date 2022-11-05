@@ -4,6 +4,7 @@ import db from "./util/db";
 
 import user from "./router/userRoute";
 import organisation from "./router/organisationRoute";
+import president from "./router/presidentRoute";
 
 db;
 
@@ -19,9 +20,10 @@ app.get("/", (req: Request, res: Response): Response => {
 
 app.use("/api/user", user);
 app.use("/api/organisation", organisation);
+app.use("/api/president", president);
 
 app.listen(port, () => {
   console.log("");
-  console.log("server is noe ready...!");
+  console.log("server is now ready...!");
   console.log("");
 });
