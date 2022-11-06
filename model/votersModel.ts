@@ -14,30 +14,17 @@ interface MainUser extends User, mongoose.Document {
   _id?: string;
 }
 
-const candidateSchema = new mongoose.Schema(
+const voterSchema = new mongoose.Schema(
   {
-    position: {
+    fullName: {
       type: String,
     },
-
-    voters: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "voters",
-      },
-    ],
-
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
-    },
-
-    organisationName: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "organisations",
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<MainUser>("candidates", candidateSchema);
+export default mongoose.model<MainUser>("voters", voterSchema);

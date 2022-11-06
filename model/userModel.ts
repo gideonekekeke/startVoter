@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 interface User {
   organisationName?: {};
   presidentPosition?: {}[];
+  voter?: {}[];
   // candiadte?: {}[];
   orgName?: string;
   orgEmail?: string;
@@ -86,6 +87,13 @@ const userSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "legals",
+      },
+    ],
+
+    voter: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "voters",
       },
     ],
 
