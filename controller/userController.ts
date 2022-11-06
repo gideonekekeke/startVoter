@@ -81,6 +81,18 @@ export const readUsers = async (
   }
 };
 
+export const readUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const read = await userModel.findById(req.params.id);
+    return res.json({ message: "Reading all User", data: read });
+  } catch (error) {
+    return res.json({ message: error });
+  }
+};
+
 export const readOrgUsers = async (
   req: Request,
   res: Response
@@ -94,12 +106,11 @@ export const readOrgUsers = async (
     //   options: { createdAt: -1 },
     // });
 
-    console.log("read");
     console.log(read);
 
     return res.json({
       message: "Reading all Organisation Users",
-      data: "read",
+      data: read,
     });
   } catch (error) {
     return res.json({ message: error });

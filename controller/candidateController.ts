@@ -1,17 +1,10 @@
 import userModel from "../model/userModel";
-import organisationModel from "../model/organisationModel";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
-import {
-  verifiedUser,
-  verifiedByAdmin,
-  verifiedByAdminFinally,
-  acceptance,
-} from "../util/email";
+import { acceptance } from "../util/email";
 
 import PresidentModel from "../model/PresidentModel";
+
 import candidateModel from "../model/candidateModel";
 
 export const readPresident = async (
@@ -36,8 +29,6 @@ export const readPresidentFromUsers = async (
       options: { sort: { createdAt: -1 } },
     });
 
-    console.log("read");
-
     return res.json({
       message: "Reading all Organisation Users",
       data: read,
@@ -57,11 +48,13 @@ export const createPresident = async (
     const user = await userModel.findById(req?.params.id);
     let name = user?.fullName;
     let email = user?.email;
-    const candidate = await candidateModel.findOne({ name });
+    let id = user?._id;
+    const candidate = await candidateModel.findOne({ fullName: name });
 
     if (!candidate) {
       if (user) {
         const getUser = await userModel.findById(user?._id);
+
         const positioned = await PresidentModel.create({
           fullName: user?.fullName,
           position: "President",
@@ -73,21 +66,18 @@ export const createPresident = async (
         );
         getUser?.save();
 
-        const candidateVal = await candidateModel.create({
+        await candidateModel.create({
           fullName: user?.fullName,
-          position: "President",
+          position: positioned?.position,
           user,
         });
-
-        getUser?.candiadte!.push(new mongoose.Types.ObjectId(candidateVal._id));
-        getUser?.save();
 
         acceptance(email, positioned, fullName).then((result) => {
           console.log("sent: ", result);
         });
         // console.log("getting data: ", getUser);
         return res.json({
-          message: `Position as President has been created for ${user?.fullName}`,
+          message: `Position as ${positioned.position} has been created for ${user?.fullName}`,
         });
       } else {
         return res.json({
@@ -96,13 +86,14 @@ export const createPresident = async (
       }
     } else {
       return res.json({
-        message: `You can't register '${name}' because he/she has been registered, for other position.`,
+        message: `You can't register '${name}' because he/she has already been registered, for the position of ${candidate.position}.`,
       });
     }
   } catch (err) {
     return res.json({ message: `error message: ${err}` });
   }
 };
+
 export const readCandidate = async (
   req: Request,
   res: Response

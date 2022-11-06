@@ -8,6 +8,7 @@ import {
   signinUser,
   resetPassword,
   changePassword,
+  readUser,
 } from "../controller/userController";
 
 import upload from "../util/multer";
@@ -18,6 +19,8 @@ router.route("/create").post(upload, createUser);
 router.route("/signin").post(signinUser);
 
 router.route("/").get(readUsers);
+router.route("/:id").get(readUser);
+
 router.route("/organisation/:id").get(readOrgUsers);
 
 router.route("/:id/token").get(VerifiedUser);

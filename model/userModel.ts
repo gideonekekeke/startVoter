@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 interface User {
   organisationName?: {};
   presidentPosition?: {}[];
-  candiadte?: {}[];
+  // candiadte?: {}[];
   orgName?: string;
   orgEmail?: string;
   fullName?: string;
@@ -54,10 +54,38 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
-    candiadte: [
+    vicePresident: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "presidents",
+        ref: "vicePresidents",
+      },
+    ],
+
+    secretary: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "secretarys",
+      },
+    ],
+
+    socialSecretary: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "socialSecretarys",
+      },
+    ],
+
+    pro: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "pros",
+      },
+    ],
+
+    legal: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "legals",
       },
     ],
 
