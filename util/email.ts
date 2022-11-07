@@ -200,10 +200,8 @@ export const verifiedSignUser = async (findUser: {}) => {
   }
 };
 
-export const resetMyPassword = async (user: {}, myToken: string) => {
+export const resetMyPassword = async (name, user: {}, myToken: string) => {
   try {
-    console.log(user);
-
     const accessToken = await oAuth.getAccessToken();
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -220,7 +218,7 @@ export const resetMyPassword = async (user: {}, myToken: string) => {
     const buildFile = path.join(__dirname, "../views/resetPassword.ejs");
 
     const data = await ejs.renderFile(buildFile, {
-      name: user?.fullName,
+      name,
       id: user?._id,
       myToken,
     });

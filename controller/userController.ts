@@ -46,6 +46,7 @@ export const createUser = async (
         orgEmail: getOrganisation?.email,
         token: realToken,
         image: img.secure_url,
+        superAdmin: false,
       });
 
       getOrganisation?.user!.push(new mongoose.Types.ObjectId(getUser._id));
@@ -250,6 +251,7 @@ export const signinUser = async (req: Request, res: Response) => {
             email: user.email,
             _id: user._id,
             fullName: user.fullName,
+            superAdmin: user.superAdmin,
           },
           "voteApp"
         );
@@ -258,7 +260,7 @@ export const signinUser = async (req: Request, res: Response) => {
 
         res.status(200).json({
           message: `welcome back ${user.fullName}`,
-          data: { getToken, ...info },
+          data: { getToken },
         });
       } else {
         return res.status(404).json({
@@ -291,12 +293,14 @@ export const resetPassword = async (
         const token = crypto.randomBytes(5).toString("hex");
         const myToken = jwt.sign({ token }, "ThisIsAVoteApp");
 
+        const name = user?.fullName;
+
         await userModel.findByIdAndUpdate(
           user._id,
           { token: myToken },
           { new: true }
         );
-        resetMyPassword(user, myToken)
+        resetMyPassword(name, user, myToken)
           .then((result) => {
             console.log("message been sent to you: ");
           })
@@ -348,5 +352,59 @@ export const changePassword = async (
     });
   } catch (error) {
     return res.status(404).json({ message: error.message });
+  }
+};
+
+export const searchUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const searchUser = req.query;
+
+    // const makeSearch = req.query
+    //   ? {
+    //       $or: [
+    //         { fullName: { $regex: req.query.search, $options: "i" } },
+    //         { _id: { $regex: req.query.search, $options: "i" } },
+    //         // { userName: { $regex: req.query.search, $options: "i" } },
+    //         //  { accounNumber: { $regex: req.query.search, $options: "i" } },
+    //       ],
+    //     }
+    //   : req.query;
+
+    const user = await userModel.find(searchUser);
+
+    return res.status(200).json({ message: "user found", data: user });
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
+  }
+};
+
+export const searchForUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    console.log("search");
+
+    return res.end("Found");
+  } catch (error) {
+    return res.status(404).json({ message: `error Message: ${error}` });
+  }
+};
+export const workOut = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    console.log("search");
+    const newQuery = req.query;
+    const users = await userModel.find(newQuery);
+
+    console.log(users);
+    return res.status(200).json({ message: `search user found`, data: users });
+  } catch (error) {
+    return res.status(404).json({ message: `error Message: ${error}` });
   }
 };

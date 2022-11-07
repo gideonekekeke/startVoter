@@ -9,6 +9,9 @@ import {
   resetPassword,
   changePassword,
   readUser,
+  searchUser,
+  searchForUser,
+  workOut,
 } from "../controller/userController";
 
 import upload from "../util/multer";
@@ -31,6 +34,10 @@ router.route("/:id/token").get(VerifiedUser);
 router.route("/:id/verify").post(VerifiedUserFinally);
 
 router.route("/:id/:token/changePassword").post(changePassword);
+
 router.route("/resetPassword").post(resetPassword);
+router.route("/search").get(searchUser);
+router.route("/searchUser").get(searchForUser);
+router.route("/word/start").get(workOut);
 
 export default router;

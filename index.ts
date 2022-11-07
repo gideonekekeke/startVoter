@@ -48,15 +48,15 @@ app.use("/api/vote", vote);
 
 const db = mongoose.connection;
 
-db.on("open", () => {
-  const observer = db.collection("voter").watch();
+// db.on("open", () => {
+//   const observer = db.collection("voter").watch();
 
-  observer.on("change", (change) => {
-    if (change.operationType === "insert") {
-      io.emit("voter");
-    }
-  });
-});
+//   observer.on("change", (change) => {
+//     if (change.operationType === "insert") {
+//       io.emit("voter");
+//     }
+//   });
+// });
 
 app.listen(port, () => {
   console.log("");
