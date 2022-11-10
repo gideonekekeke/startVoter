@@ -67,9 +67,7 @@ export const createPresident = async (
         user,
       });
 
-      getUser?.presidentPosition!.push(
-        new mongoose.Types.ObjectId(positioned._id)
-      );
+      getUser?.vicePresident!.push(new mongoose.Types.ObjectId(positioned._id));
       getUser?.save();
 
       await candidateModel.create({
@@ -78,7 +76,7 @@ export const createPresident = async (
         user,
       });
 
-      acceptance(email, positioned, fullName).then((result) => {
+      acceptance(email!, positioned, fullName).then((result) => {
         console.log("sent: ", result);
       });
       // console.log("getting data: ", getUser);

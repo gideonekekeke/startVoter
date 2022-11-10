@@ -4,7 +4,7 @@ import {
   readVote,
   readYourVoters,
   // deleteVote,
-} from "../../controller/voters/presidentVoters";
+} from "../../controller/voters/proVoter";
 
 const router = express.Router();
 

@@ -9,7 +9,7 @@ import PresidentialVotesModel from "../../model/positions/PresidentialVotesModel
 import votersModel from "../../model/votersModel";
 
 import candidateModel from "../../model/candidateModel";
-import presyModel from "../../votes/president/presyModel";
+import presyModel from "../../votes/president/prosModels";
 
 export const readVote = async (
   req: Request,
@@ -51,7 +51,6 @@ export const createVote = async (
     const getUser = await userModel.findById(req.params.id);
 
     const getVote = await presyModel.findById(req.params.voterID);
-    const getPresidentVote = await PresidentModel.findById(req.params.voterID);
 
     if (!getVote) {
       const vote = await votersModel.create({
@@ -63,25 +62,14 @@ export const createVote = async (
         _id: user?._id,
         fullName: user?.fullName,
         user,
-        voter: user,
-      });
-
-      await votersModel.create({
-        _id: user?._id,
-        fullName: user?.fullName,
-        user,
-        voter: user,
       });
 
       getUser!.voter?.push(new mongoose.Types.ObjectId(vote._id));
       getUser!.save();
 
-      // getPresidentVote!.voter?.push(new mongoose.Types.ObjectId(user!._id));
-      // getPresidentVote!.save();
-
       return res.status(201).json({ message: "vote added" });
     } else {
-      return res.json({ message: `You've Already voted for President` });
+      return res.json({ message: `You've Already voted for PRO` });
     }
   } catch (err) {
     return res.json({ message: `error message: ${err}` });

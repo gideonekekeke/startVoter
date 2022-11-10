@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 
 interface User {
   organisationName?: {};
-  presidentPosition?: {}[];
+  president?: {}[];
+  vicePresident?: {}[];
+  legal?: {}[];
+  pro?: {}[];
+  secretary?: {}[];
+  socialSecretary?: {}[];
   voter?: {}[];
   // candiadte?: {}[];
   orgName?: string;
@@ -49,7 +54,7 @@ const userSchema = new mongoose.Schema(
       ref: "organisations",
     },
 
-    presidentPosition: [
+    president: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "presidents",

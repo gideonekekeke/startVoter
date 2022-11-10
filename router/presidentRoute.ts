@@ -4,7 +4,7 @@ import {
   readPresident,
   readPresidentFromUsers,
   readCandidate,
-} from "../controller/candidateController";
+} from "../controller/presidentController";
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const url: string = "mongodb://localhost/voters";
+const url: string = "mongodb://localhost/votersDB";
 const urlOnline: string =
   "mongodb+srv://OneChurch:<OneChurch@cluster0.q3zol.mongodb.net/youthCouncil?retryWrites=true&w=majority";
 

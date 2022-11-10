@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 interface User {
   position?: string;
   fullName?: string;
+  image?: string;
   user?: {}[];
-  voters?: {}[];
+  voter?: {}[];
 }
 
 interface MainUser extends User, mongoose.Document {}
@@ -17,6 +18,9 @@ const proSchema = new mongoose.Schema(
     position: {
       type: String,
     },
+    image: {
+      type: String,
+    },
     user: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +28,7 @@ const proSchema = new mongoose.Schema(
       },
     ],
 
-    voters: [
+    voter: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "voters",

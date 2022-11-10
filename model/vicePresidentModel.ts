@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 interface User {
   position?: string;
   fullName?: string;
+  image?: string;
   user?: {}[];
   voters?: {}[];
 }
@@ -15,6 +16,9 @@ const vicePresidentSchema = new mongoose.Schema(
       type: String,
     },
     position: {
+      type: String,
+    },
+    image: {
       type: String,
     },
     user: [

@@ -13,7 +13,6 @@ const organisationSchema = new mongoose.Schema(
     organisationName: {
       type: String,
       unique: true,
-      // lowerCase: true,
     },
     email: {
       type: String,
@@ -23,7 +22,7 @@ const organisationSchema = new mongoose.Schema(
     user: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
+        ref: "users",
       },
     ],
   },

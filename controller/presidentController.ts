@@ -13,6 +13,7 @@ export const readPresident = async (
 ): Promise<Response> => {
   try {
     const read = await PresidentModel.find();
+    console.log(read);
     return res.json({ message: "Reading all President", data: read });
   } catch (error) {
     return res.json({ message: error });
@@ -25,7 +26,7 @@ export const readPresidentFromUsers = async (
 ): Promise<Response> => {
   try {
     const read = await userModel.findById(req.params.id).populate({
-      path: "presidentPosition",
+      path: "president",
       options: { sort: { createdAt: -1 } },
     });
 
@@ -43,9 +44,10 @@ export const createPresident = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { fullName, position } = req.body;
+    const { fullName } = req.body;
 
     const user = await userModel.findById(req?.params.id);
+
     let name = user?.fullName;
     let email = user?.email;
     let id = user?._id;
@@ -56,14 +58,14 @@ export const createPresident = async (
         const getUser = await userModel.findById(user?._id);
 
         const positioned = await PresidentModel.create({
+          _id: user._id,
           fullName: user?.fullName,
+          image: user?.image,
           position: "President",
           user,
         });
 
-        getUser?.presidentPosition!.push(
-          new mongoose.Types.ObjectId(positioned._id)
-        );
+        getUser?.president!.push(new mongoose.Types.ObjectId(positioned._id));
         getUser?.save();
 
         await candidateModel.create({
@@ -72,7 +74,7 @@ export const createPresident = async (
           user,
         });
 
-        acceptance(email, positioned, fullName).then((result) => {
+        acceptance(email!, positioned, fullName).then((result) => {
           console.log("sent: ", result);
         });
         // console.log("getting data: ", getUser);

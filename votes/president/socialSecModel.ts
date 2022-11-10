@@ -14,7 +14,7 @@ interface MainUser extends User, mongoose.Document {
   _id?: string;
 }
 
-const voterSchema = new mongoose.Schema(
+const socialSecSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
@@ -27,4 +27,4 @@ const voterSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model<MainUser>("voters", voterSchema);
+export default mongoose.model<MainUser>("socialSecs", socialSecSchema);

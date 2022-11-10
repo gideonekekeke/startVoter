@@ -15,7 +15,12 @@ import socialSecretary from "./router/socialSecretaryRoute";
 import pro from "./router/proRoute";
 import legal from "./router/legalRoute";
 
-import vote from "./router/voters/votersRouter";
+import presVote from "./router/voters/votersRouter";
+import viceVote from "./router/voters/viceVote";
+import secVote from "./router/voters/secVote";
+import socialVote from "./router/voters/socialVote";
+import proVote from "./router/voters/proVoter";
+import legalVote from "./router/voters/legalVote";
 
 const port: number = 2233;
 const app: Application = express();
@@ -44,7 +49,12 @@ app.use("/api/socialSecretary", socialSecretary);
 app.use("/api/pro", pro);
 app.use("/api/legal", legal);
 
-app.use("/api/vote", vote);
+app.use("/api/presVote", presVote);
+app.use("/api/viceVote", viceVote);
+app.use("/api/secVote", secVote);
+app.use("/api/socialVote", socialVote);
+app.use("/api/proVote", proVote);
+app.use("/api/legalVote", legalVote);
 
 const db = mongoose.connection;
 

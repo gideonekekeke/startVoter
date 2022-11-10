@@ -62,14 +62,13 @@ export const createPresident = async (
       const getUser = await userModel.findById(user?._id);
 
       const positioned = await PresidentModel.create({
+        _id: user._id,
         fullName: user?.fullName,
         position: "Secretary",
         user,
       });
 
-      getUser?.presidentPosition!.push(
-        new mongoose.Types.ObjectId(positioned._id)
-      );
+      getUser?.secretary!.push(new mongoose.Types.ObjectId(positioned._id));
       getUser?.save();
 
       await candidateModel.create({
@@ -78,7 +77,7 @@ export const createPresident = async (
         user,
       });
 
-      acceptance(email, positioned, fullName).then((result) => {
+      acceptance(email!, positioned, fullName).then((result) => {
         console.log("sent: ", result);
       });
       // console.log("getting data: ", getUser);

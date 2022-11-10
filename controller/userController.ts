@@ -21,12 +21,11 @@ export const createUser = async (
 ): Promise<Response> => {
   try {
     const { fullName, organisationName, email, password } = req.body;
-    console.log("Org Name: ", organisationName, fullName);
 
     const findOrg = await organisationModel.findOne({
       organisationName,
     });
-
+    console.log("Org Name: ", findOrg);
     if (findOrg) {
       const getOrganisation = await organisationModel.findById(findOrg._id);
 
@@ -402,8 +401,9 @@ export const workOut = async (
     const newQuery = req.query;
     const users = await userModel.find(newQuery);
 
-    console.log(users);
-    return res.status(200).json({ message: `search user found`, data: users });
+    return res
+      .status(200)
+      .json({ message: `search user found`, data: users[0] });
   } catch (error) {
     return res.status(404).json({ message: `error Message: ${error}` });
   }
